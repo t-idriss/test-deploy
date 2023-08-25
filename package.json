@@ -1,0 +1,22 @@
+{
+  "name": "cavableed-api",
+  "version": "1.0.0",
+  "description": "Api pour le site cavableed, gestion de rendez-vous et information pour panel admin du site",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "Toure Idrissa Expert CyberSecurity",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.4",
+    "nodemailer": "^6.9.4",
+    "nodemon": "^3.0.1",
+    "otp-generator": "^4.0.1"
+  }
+}
