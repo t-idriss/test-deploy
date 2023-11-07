@@ -8,7 +8,15 @@ const nodemailer = require("nodemailer");
 const {
   verifyTokenAndAdmin,
   verifyTokenAndAuthorization,
+  verifyToken,
 } = require("../utils/verifyToken");
+
+//Check Token
+
+router.post("/checktoken", verifyToken, async (req, res) => {
+  
+    res.status(200).json({message:"ok"});
+});
 
 //REGISTER
 
@@ -17,7 +25,9 @@ router.post("/register", async (req, res) => {
     full_name: req.body.full_name,
     email: req.body.email,
     phone: req.body.phone,
-    role: "admin",
+    city: req.body.city ? req.body.city : "",
+    zip: req.body.zip ? req.body.zip : "",
+    role: "user",
     password: CryptoJS.AES.encrypt(
       req.body.password,
       process.env.PASS_SEC
@@ -65,10 +75,20 @@ router.post("/register/admin", verifyTokenAndAdmin, async (req, res) => {
     }
   });
 
+  if (
+    req.body.role !== "blogger" &&
+    req.body.role !== "hairdresser" &&
+    req.body.role !== "tailor"
+  ) {
+    res.status(500).json("Role incorrect!!");
+  }
+
   const newUser = new User({
     full_name: req.body.full_name,
     email: req.body.email,
     phone: req.body.phone,
+    city: req.body.city,
+    zip: req.body.zip,
     password: CryptoJS.AES.encrypt(pass, process.env.PASS_SEC).toString(),
     role: req.body.role,
   });
@@ -124,11 +144,11 @@ router.post("/login", async (req, res) => {
 
 //UPDATE PASSWORD
 
-router.put("/password/:id", verifyTokenAndAuthorization, async (req, res) => {
+router.put("/password/", verifyTokenAndAuthorization, async (req, res) => {
   if (req.body.password === "") {
     return res.status(500).json("password can't be empty!!");
   }
-  const user = await User.findOne({ _id: req.params.id });
+  const user = await User.findOne({ _id: req.user.id });
 
   if (!user) {
     return res.status(401).json("wrong credentials");
@@ -150,7 +170,7 @@ router.put("/password/:id", verifyTokenAndAuthorization, async (req, res) => {
   }
   try {
     const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
+      req.user.id,
       {
         $set: req.body,
       },

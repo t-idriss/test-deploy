@@ -5,7 +5,13 @@ const { verifyTokenAndBlogger } = require("../utils/verifyToken");
 //CREATE
 
 router.post("/", verifyTokenAndBlogger, async (req, res) => {
-  const newBlog = new Blog(req.body);
+  const newBlog = new Blog({
+    user: req.user.id,
+    title: req.body.title,
+    description: req.body.description,
+    category: req.body.category,
+    img: req.body.img,
+  });
 
   try {
     const savedBlog = await newBlog.save();
@@ -18,17 +24,21 @@ router.post("/", verifyTokenAndBlogger, async (req, res) => {
 //UPDATE
 
 router.put("/:id", verifyTokenAndBlogger, async (req, res) => {
+  const body = {
+    title: req.body.title,
+    description: req.body.description,
+  };
   try {
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,
       {
-        $set: req.body,
+        $set: body,
       },
       { new: true }
     );
     res.status(200).json(updatedBlog);
   } catch (error) {
-    res.status(500).json(err);
+    res.status(500).json(error);
   }
 });
 
@@ -62,15 +72,25 @@ router.get("/", async (req, res) => {
   try {
     let blogs;
     if (qNew) {
-      blogs = await Blog.find().sort({ createdAt: -1 }).limit(qNew);
+      blogs = await Blog.find()
+        .sort({ createdAt: -1 })
+        .limit(qNew)
+        .populate("user", "full_name")
+        .exec();
     } else if (qCategory) {
       blogs = await Blog.find({
         categories: {
           $in: [qCategory],
         },
-      }).sort({ createdAt: -1 });
+      })
+        .sort({ createdAt: -1 })
+        .populate("user", "full_name")
+        .exec();
     } else {
-      blogs = await Blog.find().sort({ createdAt: -1 });
+      blogs = await Blog.find()
+        .sort({ createdAt: -1 })
+        .populate("user", "full_name")
+        .exec();
     }
 
     res.status(200).json(blogs);

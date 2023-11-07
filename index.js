@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const authRoute = require("./routes/auth");
+const userRoute = require("./routes/user");
+const blogRoute = require("./routes/blog");
+const bookRoute = require("./routes/book");
+const productRoute = require("./routes/product");
+const overviewRoute = require("./routes/overview");
 
 dotenv.config();
 mongoose.set("strictQuery", false);
@@ -20,7 +25,7 @@ mongoose
   });
 
 // const corsOptions = {
-//   origin: ["https://", ""],
+//   origin: ["http://localhost:3000", ""],
 // };
 
 app.use(cors());
@@ -28,6 +33,11 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/blogs", blogRoute);
+app.use("/api/books", bookRoute);
+app.use("/api/products", productRoute);
+app.use("/api/overviews", overviewRoute);
 
 app.listen(process.env.PORT || 500, () => {
   console.log("Server is run");
