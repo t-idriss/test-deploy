@@ -133,7 +133,7 @@ router.post("/login", async (req, res) => {
         { expiresIn: "2d" }
       );
 
-      const { password, phone, email, full_name, ...others } = user._doc;
+      const { password, phone, email, ...others } = user._doc;
 
       res.status(200).json({ ...others, accessToken });
     } catch (err) {

@@ -21,6 +21,7 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
     const validatedAppointments = validatedBooks.length;
 
     // Calcul du nombre total des books du mois en cours
+    const currentMonth = new Date().getMonth() + 1
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -97,6 +98,28 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
         }
       }
     ]);
+
+    console.log(currentMonth)
+
+    const coiffureCount = await Book.countDocuments({
+      service: "coiffure",
+      $expr: {
+        $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
+      },
+    });
+
+    const coutureCount = await Book.countDocuments({
+      service: "couture",
+      $expr: {
+        $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
+      },
+    });
+
+    const pie = [
+      coutureCount, coiffureCount
+    ];
+
+
     
     const monthEarnings = em[0] ? em[0].totalEarnings : 0;
 
@@ -111,7 +134,8 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
       bookPerMonth,
       monthEarnings,
       lastUsers,
-      lastAppointments
+      lastAppointments,
+      pie
     };
 
     res.json(overview);

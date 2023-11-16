@@ -57,7 +57,7 @@ router.get("/:id", async (req, res) => {
 //GET ALL  ITEMS
 
 router.get("/", async (req, res) => {
-  const type = req.query.new;
+  const type = req.query.cat;
   try {
     let products;
     if (type) {

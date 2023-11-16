@@ -2,7 +2,11 @@ const router = require("express").Router();
 const Book = require("../models/Book");
 const Product = require("../models/Product");
 const User = require("../models/User");
-const { verifyTokenAndAdmin, verifyTokenAndAuthorization } = require("../utils/verifyToken");
+const {
+  verifyTokenAndAdmin,
+  verifyTokenAndAuthorization,
+  verifyToken,
+} = require("../utils/verifyToken");
 
 //CREATE
 
@@ -59,6 +63,26 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
   }
 });
 
+//UPDATE
+
+router.put("/staff/:id", verifyToken, async (req, res) => {
+  if(req.body.status==="paid"){
+    return res.status(500).json("Vous n'avez pas l'autorisation");
+  }
+  try {
+    const updatedBook = await Book.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedBook);
+  } catch (error) {
+    res.status(500).json(err);
+  }
+});
+
 //DELETE
 
 router.delete("/:id", verifyTokenAndAdmin, async (req, res) => {
@@ -84,11 +108,11 @@ router.get("/:id", async (req, res) => {
 //GET ALL  ITEMS
 
 router.get("/", async (req, res) => {
-  const type = req.query.new;
+  const type = req.query.cat;
   try {
     let books;
     if (type) {
-      books = await Book.find({ type: type }).sort({ createdAt: -1 });
+      books = await Book.find({ status: type }).sort({ createdAt: -1 });
     } else {
       books = await Book.find().sort({ createdAt: -1 });
     }
@@ -99,11 +123,35 @@ router.get("/", async (req, res) => {
   }
 });
 
+//GET ALL  ITEMS FOR A STAFF MEMBER
+
+router.get("/staff/:idStaff", async (req, res) => {
+  const type = req.query.cat;
+  try {
+    let books;
+    if (type) {
+      books = await Book.find({
+        user_id: req.params.idStaff,
+        status: type,
+      }).sort({ createdAt: -1 });
+    } else {
+      books = await Book.find({ user_id: req.params.idStaff }).sort({
+        createdAt: -1,
+      });
+    }
+    res.status(200).json(books);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 //GET ALL  ITEMS BY USER
 
-router.get("/user/:id", verifyTokenAndAuthorization,  async (req, res) => {
+router.get("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
   try {
-    let books = await Book.find({ user_id: req.params.id }).sort({ createdAt: -1 });
+    let books = await Book.find({ user_id: req.params.id }).sort({
+      createdAt: -1,
+    });
     res.status(200).json(books);
   } catch (err) {
     res.status(500).json(err);
