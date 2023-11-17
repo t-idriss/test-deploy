@@ -6,6 +6,7 @@ const {
   verifyTokenAndAdmin,
   verifyTokenAndAuthorization,
   verifyToken,
+  verifyTokenAndStaff,
 } = require("../utils/verifyToken");
 
 //CREATE
@@ -65,7 +66,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 
 //UPDATE
 
-router.put("/staff/:id", verifyToken, async (req, res) => {
+router.put("/staff/:id", verifyTokenAndStaff, async (req, res) => {
   if(req.body.status==="paid"){
     return res.status(500).json("Vous n'avez pas l'autorisation");
   }
@@ -107,7 +108,7 @@ router.get("/:id", async (req, res) => {
 
 //GET ALL  ITEMS
 
-router.get("/", async (req, res) => {
+router.get("/", verifyTokenAndAdmin, async (req, res) => {
   const type = req.query.cat;
   try {
     let books;
@@ -125,7 +126,7 @@ router.get("/", async (req, res) => {
 
 //GET ALL  ITEMS FOR A STAFF MEMBER
 
-router.get("/staff/:idStaff", async (req, res) => {
+router.get("/staff/:idStaff", verifyTokenAndStaff, async (req, res) => {
   const type = req.query.cat;
   try {
     let books;
@@ -147,7 +148,7 @@ router.get("/staff/:idStaff", async (req, res) => {
 
 //GET ALL  ITEMS BY USER
 
-router.get("/user/:id", verifyTokenAndAuthorization, async (req, res) => {
+router.get("/user/:id", verifyTokenAndStaff, async (req, res) => {
   try {
     let books = await Book.find({ user_id: req.params.id }).sort({
       createdAt: -1,

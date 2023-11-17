@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const Book = require("../models/Book");
-const { verifyTokenAndAdmin } = require("../utils/verifyToken");
+const { verifyTokenAndAdmin, verifyTokenAndStaff } = require("../utils/verifyToken");
 
-//GET ALL  ITEMS
+//GET OVERVIEW ADMIN
 
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   try {
@@ -79,7 +79,6 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
         }
       }
     ]);
-
     
     const em = await Book.aggregate([
       {
@@ -98,8 +97,6 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
         }
       }
     ]);
-
-    console.log(currentMonth)
 
     const coiffureCount = await Book.countDocuments({
       service: "coiffure",
@@ -135,6 +132,65 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
       monthEarnings,
       lastUsers,
       lastAppointments,
+      pie
+    };
+
+    res.json(overview);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//GET OVERVIEW FOR STAFF
+
+router.get("/staff/:staffId", verifyTokenAndStaff, async (req, res) => {
+  try {
+    
+
+    // Calcul du nombre total des books du mois en cours
+    const currentMonth = new Date().getMonth() + 1
+    
+
+    const bookCount = await Book.countDocuments({
+      user_id: req.params.staffId
+    });
+
+    const bookPaidCount = await Book.countDocuments({
+      user_id: req.params.staffId,
+      status: "paid"
+    });
+
+    const bookCanceledCount = await Book.countDocuments({
+      user_id: req.params.staffId,
+      status: "canceled"
+    });
+
+    const bookCountMonth = await Book.countDocuments({
+      user_id: req.params.staffId,
+      $expr: {
+        $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
+      },
+    });
+
+    const bookConfirmedCountMonth = await Book.countDocuments({
+      user_id: req.params.staffId,
+      status: "paid",
+      $expr: {
+        $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
+      },
+    });
+
+    const pie = [
+      bookConfirmedCountMonth, bookCountMonth
+    ];
+
+
+    
+    
+    const overview = {
+      bookCount,
+      bookPaidCount,
+      bookCanceledCount,
       pie
     };
 

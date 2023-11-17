@@ -36,6 +36,16 @@ const verifyTokenAndAdmin = (req, res, next) => {
   });
 };
 
+const verifyTokenAndStaff = (req, res, next) => {
+  verifyToken(req, res, () => {
+    if (req.user.role === "admin" || req.user.role === "tailor" || req.user.role === "hairdresser") {
+      next();
+    } else {
+      res.status(403).json("You are not allowed to do that!");
+    }
+  });
+};
+
 const verifyTokenAndBlogger = (req, res, next) => {
   verifyToken(req, res, () => {
     if (req.user.role === "blogger" || req.user.role === "admin") {
@@ -51,4 +61,5 @@ module.exports = {
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
   verifyTokenAndBlogger,
+  verifyTokenAndStaff
 };
