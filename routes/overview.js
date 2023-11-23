@@ -99,7 +99,7 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
     ]);
 
     const coiffureCount = await Book.countDocuments({
-      service: "haidress",
+      service: "hairdress",
       $expr: {
         $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
       },
