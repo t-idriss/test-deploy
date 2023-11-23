@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Book = require("../models/Book");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const moment= require("moment");
 const {
   verifyTokenAndAdmin,
   verifyTokenAndAuthorization,
@@ -14,7 +15,11 @@ const {
 router.post("/", async (req, res) => {
   let product = await Product.findById(req.body.product_id);
   let user = await User.findById(req.body.user_id);
+  let book = await Book.find({user_id:req.body.user_id, date:req.body.date});
 
+  if (book.length) {
+    return res.status(403).json("This date and time are not available!");
+  }
   if (!product || !user) {
     return res.status(403).json("Verify credentials!");
   }
@@ -24,9 +29,9 @@ router.post("/", async (req, res) => {
     product_id: req.body.product_id,
     service: req.body.service,
     type: req.body.type,
-    city: req.body.city,
     date: req.body.date,
     time: req.body.time,
+    city: req.body.city,
     client: {
       full_name: req.body.full_name,
       email: req.body.email,
@@ -44,6 +49,30 @@ router.post("/", async (req, res) => {
     res.status(200).json(savedBook);
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+//GET HOURS AVAILABILITY
+
+router.post("/times", async (req, res) => {
+  try {
+    const { user_id, date } = req.body;
+    const formattedDate = moment(date).format("YYYY-MM-DD");
+    const appointments = await Book.find({
+      user_id: user_id,
+      date: { $gte: formattedDate, $lt: moment(formattedDate).add(1, 'days').format("YYYY-MM-DD") }
+    }, {time:1});
+    const availability = [];
+    for (let hour = 9; hour <= 20; hour++) {
+      i=`${hour}:00:00`
+      const isAvailable = appointments.some(item => item.time === i);
+  
+      availability.push({ time: hour, status: isAvailable });
+    }
+    res.status(200).json(availability);
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err);
   }
 });
 
@@ -67,7 +96,7 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
 //UPDATE
 
 router.put("/staff/:id", verifyTokenAndStaff, async (req, res) => {
-  if(req.body.status==="paid"){
+  if (req.body.status === "paid") {
     return res.status(500).json("Vous n'avez pas l'autorisation");
   }
   try {
@@ -108,12 +137,12 @@ router.get("/:id", async (req, res) => {
 
 //GET ALL  ITEMS
 
-router.get("/", verifyTokenAndAdmin, async (req, res) => {
+router.get("/", async (req, res) => {
   const type = req.query.cat;
   try {
     let books;
     if (type) {
-      books = await Book.find({ status: type }).sort({ createdAt: -1 });
+      books = await Book.find({ service: type }).sort({ createdAt: -1 });
     } else {
       books = await Book.find().sort({ createdAt: -1 });
     }

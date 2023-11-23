@@ -62,7 +62,7 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
 
     const lastAppointments = await Book.find()
       .sort({ createdAt: -1 }) 
-      .limit(5);
+      .limit(3);
 
     const bookPerMonth = await Book.aggregate([
       {
@@ -99,14 +99,14 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
     ]);
 
     const coiffureCount = await Book.countDocuments({
-      service: "coiffure",
+      service: "haidress",
       $expr: {
         $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
       },
     });
 
     const coutureCount = await Book.countDocuments({
-      service: "couture",
+      service: "tailor",
       $expr: {
         $eq: [{ $toInt: { $substr: ["$date", 5, 2] } }, currentMonth],
       },

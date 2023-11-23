@@ -170,7 +170,7 @@ router.get("/taillors", verifyTokenAndAdmin, async (req, res) => {
 
 //GET ALL STAFF
 
-router.get("/staff", verifyTokenAndAdmin, async (req, res) => {
+router.get("/staff", async (req, res) => {
   const query = req.query.new;
   try {
     const users = query
@@ -185,6 +185,27 @@ router.get("/staff", verifyTokenAndAdmin, async (req, res) => {
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+//GET ALL STAFF BY SERVICE
+
+router.get("/staffs", async (req, res) => {
+  const service = req.query.service;
+  try {
+    const users = service
+      ? await User.find({ role: service}, { password: 0 })
+          .sort({ createdAt: -1 })
+          .limit()
+      : await User.find(
+          { role: { $in: ["tailor", "hairdresser", "blogger"] } },
+          { password: 0 }
+        ).sort({ createdAt: -1 });
+
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json(err);
+    console.log(err)
   }
 });
 
