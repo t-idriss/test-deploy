@@ -14,8 +14,7 @@ const {
 //Check Token
 
 router.post("/checktoken", verifyToken, async (req, res) => {
-  
-    res.status(200).json({message:"ok"});
+  res.status(200).json({ message: "ok" });
 });
 
 //REGISTER
@@ -26,6 +25,7 @@ router.post("/register", async (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
     city: req.body.city ? req.body.city : "",
+    address: req.body.address,
     zip: req.body.zip ? req.body.zip : "",
     role: "user",
     password: CryptoJS.AES.encrypt(
@@ -36,7 +36,19 @@ router.post("/register", async (req, res) => {
 
   try {
     const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+
+    const accessToken = jwt.sign(
+      {
+        id: savedUser._id,
+        role: savedUser.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "2d" }
+    );
+
+    const { password, phone, email, ...others } = savedUser._doc;
+
+    res.status(201).json({ ...others, accessToken });
   } catch (err) {
     res.status(500).json(err);
   }
