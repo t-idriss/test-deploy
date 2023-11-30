@@ -165,7 +165,7 @@ router.get("/", async (req, res) => {
   try {
     let books;
     if (type) {
-      books = await Book.find({ service: type }).sort({ createdAt: -1 });
+      books = await Book.find({ status: type }).sort({ createdAt: -1 });
     } else {
       books = await Book.find().sort({ createdAt: -1 });
     }
