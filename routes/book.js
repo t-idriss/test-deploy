@@ -78,6 +78,7 @@ router.post("/times", async (req, res) => {
     const appointments = await Book.find(
       {
         user_id: user_id,
+        status: { $in: [ 'pending', 'confirmed' ] },
         date: {
           $gte: formattedDate,
           $lt: moment(formattedDate).add(1, "days").format("YYYY-MM-DD"),
