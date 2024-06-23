@@ -46,10 +46,11 @@ router.get("/", (req, res) => {
   res.send("App is running..");
 });
 
-// app.listen(process.env.PORT || 500, () => {
-//   console.log("Server is run");
-// });
 
 app.use("/.netlify/index", router);
 
 module.exports.handler = serverless(app);
+
+app.listen(process.env.PORT || 500, () => {
+  console.log("Server is run");
+});
