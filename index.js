@@ -13,18 +13,18 @@ const serverless = require("serverless-http");
 const router = express.Router();
 
 dotenv.config();
-mongoose.set("strictQuery", false);
-mongoose
-  .connect(process.env.MONGOCONNECT, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("db connection success");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// mongoose.set("strictQuery", false);
+// mongoose
+//   .connect(process.env.MONGOCONNECT, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => {
+//     console.log("db connection success");
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
 
 // const corsOptions = {
 //   origin: ["http://localhost:3000", ""],
@@ -47,7 +47,7 @@ router.get("/", (req, res) => {
 });
 
 
-app.use("/.netlify/index", router);
+app.use("/.netlify/functions/app", router);
 
 module.exports.handler = serverless(app);
 
