@@ -4,7 +4,8 @@
   "description": "Api pour le site cavableed, gestion de rendez-vous et information pour panel admin du site",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "build": "netlify deploy --prod"
   },
   "author": "Toure Idrissa Expert CyberSecurity",
   "license": "MIT",
@@ -16,8 +17,11 @@
     "jsonwebtoken": "^9.0.1",
     "moment": "^2.29.4",
     "mongoose": "^7.4.4",
+    "netlify-cli": "^17.29.0",
+    "netlify-lambda": "^2.0.16",
     "nodemailer": "^6.9.4",
     "nodemon": "^3.0.1",
-    "otp-generator": "^4.0.1"
+    "otp-generator": "^4.0.1",
+    "serverless-http": "^3.2.0"
   }
 }

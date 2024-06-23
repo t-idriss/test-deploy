@@ -9,6 +9,7 @@ const blogRoute = require("./routes/blog");
 const bookRoute = require("./routes/book");
 const productRoute = require("./routes/product");
 const overviewRoute = require("./routes/overview");
+const serverless = require("serverless-http");
 
 dotenv.config();
 mongoose.set("strictQuery", false);
@@ -39,6 +40,8 @@ app.use("/api/books", bookRoute);
 app.use("/api/products", productRoute);
 app.use("/api/overviews", overviewRoute);
 
-app.listen(process.env.PORT || 500, () => {
-  console.log("Server is run");
-});
+// app.listen(process.env.PORT || 500, () => {
+//   console.log("Server is run");
+// });
+
+module.exports.handler = serverless(app);
